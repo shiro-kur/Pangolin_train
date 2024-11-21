@@ -43,8 +43,8 @@ def crossent(y_pred, y_true):
 bce = nn.BCELoss()
 
 def loss(y_pred, y_true):
-    # 0,2,4,6 -> output from regression task -> categorial cross entropy
-    # 1,3,5,7 -> output from classification task -> binary cross entropy
+    # 0,2,4,6 -> output from softmax function -> categorial cross entropy
+    # 1,3,5,7 -> output from sigmoid function -> binary cross entropy
     y_pred = torch.split(y_pred, [2,1,2,1,2,1,2,1], dim=1)
     y_true = torch.split(y_true, [2,1,2,1,2,1,2,1], dim=1)
 
