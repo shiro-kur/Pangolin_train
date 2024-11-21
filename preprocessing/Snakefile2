@@ -3,6 +3,32 @@ import numpy as np
 import pandas as pd
 from pybedtools import BedTool
 
+# $ python SpliSER/SpliSER_v0.1.3.py combine --isStranded -s rf -S {input} -o {params.id}
+# $ python SpliSER/SpliSER_v0.1.3.py output -S {input.samples} -C {input.counts} -o {params.prefix} -r {params.minreads} -t diffSpliSER
+# $ cat {input} > {output.combined}
+
+# $ python five_or_three.py {output.combined} {output.five_or_three}
+# <Output> combined="%s.combined.tsv" % SPECIES,five_or_three="%s.sites.5or3.tsv" % SPECIES
+
+# [rule] get_sites
+# <Output>"%s.{id}.usage.bed" % SPECIES
+
+# [ruls] get_sites_strict
+# <Output>"%s.{id}.usage.strict.bed" % SPECIES
+
+# [rule] merge_tissues
+# <Output>"%s.merged.usage.bed" % SPECIES
+
+# [rule] splice_table
+# <Output> "splice_table_%s.txt" % SPECIES
+
+# [rule] splice_table_test
+# <Output> "splice_table_%s.test.txt" % "Human"
+
+
+# $liftoff -p {threads} -db {input.gff} -o {output.gff} -dir {params} -a 0.75 -s 0.75 -flank 1 -copies -sc 0.9 -u {output.unmapped} {input.target} {input.human}
+# $liftoff -p {threads} -g {input.gff} -o {output.gff} -dir {params} -a 0.75 -s 0.75 -flank 1 -copies -sc 0.9 -u {output.unmapped} {input.target} {input.species}
+
 SPECIES = config["SPECIES"]
 
 if SPECIES == "Human":
