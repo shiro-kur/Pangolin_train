@@ -27,6 +27,7 @@ val_dl = data.DataLoader(val_ds, batch_size=BATCH_SIZE, shuffle=True, num_worker
 
 print("dataset loaded", flush=True)
 
+#Load model & Mount on GPU
 model = Pangolin(L, W, AR)
 if torch.cuda.device_count() > 1:
     print("Using %s gpus" % torch.cuda.device_count(), flush=True)
@@ -38,13 +39,19 @@ def crossent(y_pred, y_true):
     return - torch.mean(y_true[:, 0, :]*torch.log(y_pred[:, 0, :]+1e-10)
                       + y_true[:, 1, :]*torch.log(y_pred[:, 1, :]+1e-10))
 
+#Binary Cross Entropy
 bce = nn.BCELoss()
 
 def loss(y_pred, y_true):
+    # 0,2,4,6 -> output from regression task -> categorial cross entropy
+    # 1,3,5,7 -> output from classification task -> binary cross entropy
     y_pred = torch.split(y_pred, [2,1,2,1,2,1,2,1], dim=1)
     y_true = torch.split(y_true, [2,1,2,1,2,1,2,1], dim=1)
 
+    # ??? How the null value was calculated by lacked true label ???
     loss_cat = crossent(y_pred[0], y_true[0]) + crossent(y_pred[2], y_true[2]) + crossent(y_pred[4], y_true[4]) + crossent(y_pred[6], y_true[6])
+    
+    # Skip the null value by lacked true label 
     loss_cont = (bce(y_pred[1][y_true[1]>=0], y_true[1][y_true[1]>=0]) + bce(y_pred[3][y_true[3]>=0], y_true[3][y_true[3]>=0]) +
                  bce(y_pred[5][y_true[5]>=0], y_true[5][y_true[5]>=0]) + bce(y_pred[7][y_true[7]>=0], y_true[7][y_true[7]>=0]))
 
@@ -57,19 +64,31 @@ def train(epoch):
     
     for batch_idx, (inputs, targets) in enumerate(train_dl):
         inputs, targets = inputs.cuda(), targets.cuda()
+        #Prediction
         outputs = model(inputs)
+        
+        #Calculate the loss
         loss = criterion(outputs, targets)
         train_loss += float(loss)
-        
+
+        # Reset the gradient into zero
         optimizer.zero_grad()
+        
+        # Calculate back propagation
         loss.backward()
+        
+        # Parameter Update
         optimizer.step()
+        
+        # Update the learning rate
         scheduler.step(epoch + batch_idx / iters)
 
         #print(batch_idx, len(train_dl), 'Loss: %.5f' % (train_loss/(batch_idx+1)), flush=True)
+        #　Show the training progress bar.
         progress_bar(batch_idx, len(train_dl),
                      'Loss: %.5f' % (train_loss/(batch_idx+1)))
 
+    # Return the average loss
     return train_loss/batch_idx
 
 def test():
@@ -90,7 +109,10 @@ def test():
     return test_loss/batch_idx
 
 criterion = loss
+#Set AdamW
 optimizer = torch.optim.AdamW(model.parameters(), lr=5e-4)
+
+#Set the LR schedular of cosine annealing warm restarts 
 # 2 4
 T_0 = 2
 T_mult = 2
