@@ -71,6 +71,10 @@ class Pangolin(nn.Module):
             self.resblocks.append(ResBlock(L, W[i], AR[i]))
             if (((i + 1) % 4 == 0) or ((i + 1) == len(W))):
                 self.convs.append(nn.Conv1d(L, L, 1))
+
+        # 0,2,4,6 -> splice site/non-splice site
+        # 1,3,5,7 -> splice site usage
+        # [0,1]/[2,3]/[4,5]/[6,7] -> heat/liver/brain/testis
         self.conv_last1 = nn.Conv1d(L, 2, 1)
         self.conv_last2 = nn.Conv1d(L, 1, 1)
         self.conv_last3 = nn.Conv1d(L, 2, 1)
@@ -93,7 +97,7 @@ class Pangolin(nn.Module):
         CL = 2 * np.sum(AR * (W - 1))
         skip = F.pad(skip, (-CL // 2, -CL // 2))
         out1 = F.softmax(self.conv_last1(skip), dim=1)
-        out2 = torch.sigmoid(self.conv_last2(skip))
+        out2 = torch.sigmoid(self.conv_last2(skip))p
         out3 = F.softmax(self.conv_last3(skip), dim=1)
         out4 = torch.sigmoid(self.conv_last4(skip))
         out5 = F.softmax(self.conv_last5(skip), dim=1)
