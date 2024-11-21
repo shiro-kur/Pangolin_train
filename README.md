@@ -1,3 +1,12 @@
+# Modified Installation
+```sh
+$ mamba create -n pangolin_train -c conda-forge -c pytorch --yes \
+  python=3.10 pytorch=1.13 torchvision torchaudio cudatoolkit=11.7 numpy=1.24 h5py
+#check the GPU availability
+$ python -c "import torch; print(torch.cuda.is_available())
+```
+
+
 # Pangolin_train
 
 The steps described below are for recreating the training and testing steps in [Zeng and Li, Genome Biology 2022](https://doi.org/10.1186/s13059-022-02664-4). In progress--currently setup to produce top-k and AUPRC metrics for Pangolin as in Figure 1b.
