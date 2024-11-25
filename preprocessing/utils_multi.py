@@ -65,7 +65,7 @@ def one_hot_encode_Y(Yd):
 def ceil_div(x, y):
     return int(ceil(float(x)/y))
 
-# -3 = unexpressed, -2 = # of reads >0 but <threshold, -1 = spliced but no usage est
+# -3 = unexpressed (<TPM, only Test dataset), -2 = # of reads >0 but <threshold, -1 = spliced but no usage est
 def get_usage(cov):
     if cov == "":
         return 0
