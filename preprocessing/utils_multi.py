@@ -44,9 +44,10 @@ def reformat_data_X(X0, Y0):
     return Xd
 
 def reformat_data_Y(Y0):
+    # [5000][5000][5000-X], num_points=3
     num_points = ceil_div(len(Y0[0]), SL)
     Yd = [-np.ones((num_points, SL)) for t in range(1)]
-
+    # Padding the last X with -1 values.
     Y0 = [np.pad(Y0[t], [0, SL], 'constant', constant_values=-1) for t in range(1)]
  
     for t in range(1):
