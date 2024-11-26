@@ -56,6 +56,7 @@ for batch_idx, (inputs, targets) in enumerate(dl):
         for model in models:
             all_outputs[batch_idx:batch_idx+1,:,:] += model(inputs).cpu().detach().numpy()
 
+## 0,1|2|3,4|5|6,7|8|9,10|11 (split before the indicated idx)
 all_targets = np.split(all_targets, [2,3,5,6,8,9,11], axis=1)
 np.set_printoptions(threshold=sys.maxsize)
 print(all_targets[0])
